@@ -268,6 +268,14 @@
     max-width: 94vw;
   }
   .global-footer img { height: 24px; width: auto; }
+
+  .sticker {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: -0.22em;
+    display: inline-block;
+    object-fit: contain;
+  }
 </style>
 </head>
 <body>
@@ -414,6 +422,99 @@
   const progressFill = document.getElementById("progressFill");
   const bgAnimation = document.getElementById("bgAnimation");
 
+  const FLUENT_3D = {
+    "💛": "Yellow%20heart/3D/yellow_heart_3d.png",
+    "🥰": "Smiling%20face%20with%20hearts/3D/smiling_face_with_hearts_3d.png",
+    "👋": "Waving%20hand/Default/3D/waving_hand_3d_default.png",
+    "🥺": "Pleading%20face/3D/pleading_face_3d.png",
+    "😊": "Smiling%20face%20with%20smiling%20eyes/3D/smiling_face_with_smiling_eyes_3d.png",
+    "🥤": "Cup%20with%20straw/3D/cup_with_straw_3d.png",
+    "🤩": "Star-struck/3D/star-struck_3d.png",
+    "😅": "Grinning%20face%20with%20sweat/3D/grinning_face_with_sweat_3d.png",
+    "😏": "Smirking%20face/3D/smirking_face_3d.png",
+    "🎁": "Wrapped%20gift/3D/wrapped_gift_3d.png",
+    "🙅": "Person%20gesturing%20no/Default/3D/person_gesturing_no_3d_default.png",
+    "✨": "Sparkles/3D/sparkles_3d.png",
+    "🍬": "Candy/3D/candy_3d.png",
+    "😎": "Smiling%20face%20with%20sunglasses/3D/smiling_face_with_sunglasses_3d.png",
+    "🕒": "Twelve%20oclock/3D/twelve_oclock_3d.png",
+    "🙄": "Face%20with%20rolling%20eyes/3D/face_with_rolling_eyes_3d.png",
+    "😫": "Tired%20face/3D/tired_face_3d.png",
+    "🌆": "Cityscape%20at%20dusk/3D/cityscape_at_dusk_3d.png",
+    "🙅‍♀️": "Woman%20gesturing%20no/Default/3D/woman_gesturing_no_3d_default.png",
+    "🤔": "Thinking%20face/3D/thinking_face_3d.png",
+    "💘": "Heart%20with%20arrow/3D/heart_with_arrow_3d.png",
+    "📞": "Telephone%20receiver/3D/telephone_receiver_3d.png",
+    "😨": "Fearful%20face/3D/fearful_face_3d.png",
+    "📲": "Mobile%20phone%20with%20arrow/3D/mobile_phone_with_arrow_3d.png",
+    "😔": "Pensive%20face/3D/pensive_face_3d.png",
+    "🎮": "Video%20game/3D/video_game_3d.png",
+    "🥳": "Partying%20face/3D/partying_face_3d.png",
+    "😮‍💨": "Face%20exhaling/3D/face_exhaling_3d.png",
+    "🥱": "Yawning%20face/3D/yawning_face_3d.png",
+    "🎉": "Party%20popper/3D/party_popper_3d.png",
+    "🎊": "Confetti%20ball/3D/confetti_ball_3d.png",
+    "🏆": "Trophy/3D/trophy_3d.png",
+    "😍": "Smiling%20face%20with%20heart-eyes/3D/smiling_face_with_heart-eyes_3d.png",
+    "🔄": "Counterclockwise%20arrows%20button/3D/counterclockwise_arrows_button_3d.png",
+    "❤️": "Red%20heart/3D/red_heart_3d.png",
+    "👥": "Busts%20in%20silhouette/3D/busts_in_silhouette_3d.png",
+    "💝": "Heart%20with%20ribbon/3D/heart_with_ribbon_3d.png",
+    "🤝": "Handshake/3D/handshake_3d.png",
+    "🎈": "Balloon/3D/balloon_3d.png",
+    "💌": "Love%20letter/3D/love_letter_3d.png",
+    "💖": "Sparkling%20heart/3D/sparkling_heart_3d.png",
+    "💕": "Two%20hearts/3D/two_hearts_3d.png",
+    "💗": "Growing%20heart/3D/growing_heart_3d.png",
+    "💓": "Beating%20heart/3D/beating_heart_3d.png",
+    "🌹": "Rose/3D/rose_3d.png",
+    "💞": "Revolving%20hearts/3D/revolving_hearts_3d.png",
+    "🌸": "Cherry%20blossom/3D/cherry_blossom_3d.png",
+    "⚽": "Soccer%20ball/3D/soccer_ball_3d.png",
+    "🍕": "Pizza/3D/pizza_3d.png",
+    "😂": "Face%20with%20tears%20of%20joy/3D/face_with_tears_of_joy_3d.png",
+    "🤙": "Call%20me%20hand/Default/3D/call_me_hand_3d_default.png",
+    "🍦": "Soft%20ice%20cream/3D/soft_ice_cream_3d.png",
+    "😄": "Grinning%20face%20with%20smiling%20eyes/3D/grinning_face_with_smiling_eyes_3d.png",
+    "🙏": "Folded%20hands/Default/3D/folded_hands_3d_default.png"
+  };
+
+  const STICKER_BASE = "https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/";
+  const stickerUrl = (emoji) => FLUENT_3D[emoji] ? STICKER_BASE + FLUENT_3D[emoji] : null;
+
+  function makeSticker(emoji, size) {
+    const url = stickerUrl(emoji);
+    if (!url) return document.createTextNode(emoji);
+    const img = document.createElement("img");
+    img.className = "sticker";
+    img.src = url;
+    img.alt = "";
+    img.loading = "lazy";
+    if (size) {
+      img.style.width = size;
+      img.style.height = size;
+    }
+    return img;
+  }
+
+  function convertTextNodes(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    if (typeof Intl.Segmenter === "undefined") return;
+    const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+    nodes.forEach(node => {
+      const parent = node.parentNode;
+      if (!parent || !parent.closest) return;
+      if (parent.closest("script,style,noscript")) return;
+      const graphemes = Array.from(segmenter.segment(node.nodeValue), s => s.segment);
+      if (!graphemes.some(g => stickerUrl(g))) return;
+      const frag = document.createDocumentFragment();
+      graphemes.forEach(g => frag.appendChild(makeSticker(g)));
+      parent.replaceChild(frag, node);
+    });
+  }
+
   let gender = null;
   let current = 0;
 
@@ -426,14 +527,14 @@
       : ["🤝","🎈","⚽","🍕","🥤","😂","🤙","🎮","🍦","😄"];
     bgAnimation.innerHTML = "";
     for (let i = 0; i < 16; i++) {
-      const span = document.createElement("span");
-      span.className = "bg-emoji";
-      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      span.style.left = Math.random() * 95 + "vw";
-      span.style.fontSize = (22 + Math.random() * 30) + "px";
-      span.style.animationDuration = (9 + Math.random() * 10) + "s";
-      span.style.animationDelay = (Math.random() * 8) + "s";
-      bgAnimation.appendChild(span);
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const size = 22 + Math.random() * 30;
+      const img = makeSticker(emoji, size + "px");
+      img.className = "bg-emoji sticker";
+      img.style.left = Math.random() * 95 + "vw";
+      img.style.animationDuration = (9 + Math.random() * 10) + "s";
+      img.style.animationDelay = (Math.random() * 8) + "s";
+      bgAnimation.appendChild(img);
     }
     for (let i = 0; i < 12; i++) {
       const sp = document.createElement("span");
@@ -458,7 +559,9 @@
     const quiz = quizzes[gender];
     const item = quiz[current];
     questionText.textContent = item.q;
+    convertTextNodes(questionText);
     progressText.textContent = "Savol " + (current + 1) + " / " + quiz.length + " 😊";
+    convertTextNodes(progressText);
     progressFill.style.width = ((current) / quiz.length) * 100 + "%";
     warningBox.classList.remove("show");
     optionList.innerHTML = "";
@@ -466,6 +569,7 @@
       const btn = document.createElement("button");
       btn.className = "option-btn";
       btn.textContent = opt.text;
+      convertTextNodes(btn);
       btn.addEventListener("click", () => handleAnswer(opt, item));
       optionList.appendChild(btn);
     });
@@ -482,6 +586,7 @@
       }
     } else {
       warningBox.textContent = "Iltimos, " + item.must + " javobni tanlang! Aks holda keyingi savolga o'tmaydi 🥺🙏";
+      convertTextNodes(warningBox);
       warningBox.classList.remove("show");
       void warningBox.offsetWidth;
       warningBox.classList.add("show");
@@ -491,6 +596,7 @@
   function finish() {
     progressFill.style.width = "100%";
     document.getElementById("finalMessage").textContent = finalMessages[gender];
+    convertTextNodes(document.getElementById("finalMessage"));
     showScreen(resultScreen);
     confetti();
   }
@@ -531,20 +637,20 @@
   const likeBadge = document.getElementById("likeBadge");
   let likeCount = parseInt(localStorage.getItem("loveSengaLikes") || "0", 10);
   likeBadge.textContent = "❤️ " + likeCount;
+  convertTextNodes(likeBadge);
 
   function spawnHearts(x, y) {
     const emojis = ["💖", "💕", "💘", "❤️", "💗", "💓", "💝"];
     for (let i = 0; i < 10; i++) {
-      const h = document.createElement("span");
-      h.className = "fly-heart";
-      h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      h.style.left = (x + (Math.random() * 70 - 35)) + "px";
-      h.style.top = (y + (Math.random() * 20 - 10)) + "px";
-      h.style.fontSize = (18 + Math.random() * 22) + "px";
-      h.style.setProperty("--dx", (Math.random() * 90 - 45) + "px");
-      h.style.setProperty("--dy", (-(80 + Math.random() * 130)) + "px");
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), 1300);
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const img = makeSticker(emoji, (18 + Math.random() * 22) + "px");
+      img.className = "fly-heart sticker";
+      img.style.left = (x + (Math.random() * 70 - 35)) + "px";
+      img.style.top = (y + (Math.random() * 20 - 10)) + "px";
+      img.style.setProperty("--dx", (Math.random() * 90 - 45) + "px");
+      img.style.setProperty("--dy", (-(80 + Math.random() * 130)) + "px");
+      document.body.appendChild(img);
+      setTimeout(() => img.remove(), 1300);
     }
   }
 
@@ -553,8 +659,11 @@
     likeCount++;
     localStorage.setItem("loveSengaLikes", likeCount);
     likeBadge.textContent = "❤️ " + likeCount;
+    convertTextNodes(likeBadge);
     spawnHearts(e.clientX, e.clientY);
   });
+
+  convertTextNodes(document.body);
 </script>
 
 </body>
