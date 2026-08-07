@@ -159,7 +159,51 @@
     to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; }
   }
 
-  footer { margin-top: 18px; font-size: 13px; opacity: 0.7; text-align: center; }
+  .fly-heart {
+    position: fixed;
+    z-index: 50;
+    pointer-events: none;
+    animation: heartFly 1.2s ease-out forwards;
+  }
+  @keyframes heartFly {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.4) rotate(30deg); opacity: 0; }
+  }
+
+  .like-badge {
+    position: fixed;
+    bottom: 66px;
+    left: 14px;
+    z-index: 20;
+    background: var(--card);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    user-select: none;
+  }
+
+  .global-footer {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    background: var(--card);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 94vw;
+  }
+  .global-footer img { height: 24px; width: auto; }
 </style>
 </head>
 <body>
@@ -213,8 +257,16 @@
       </div>
       <button class="btn" id="restartBtn">Qaytadan boshlash 🔄</button>
     </div>
-    <footer>love-senga.uz • senga bag'ishlangan 💝</footer>
   </section>
+
+  <!-- LIKE BADGE -->
+  <div class="like-badge" id="likeBadge">❤️ 0</div>
+
+  <!-- VISITOR COUNTER -->
+  <div class="global-footer">
+    <span>👥 Saytga tashrif: </span>
+    <img src="https://count.getloli.com/@love-senga-uz" alt="Tashriflar soni" title="Tashriflar soni">
+  </div>
 
 </div>
 
@@ -397,6 +449,34 @@
     bgAnimation.innerHTML = "";
     gender = null;
     showScreen(intro);
+  });
+
+  const likeBadge = document.getElementById("likeBadge");
+  let likeCount = parseInt(localStorage.getItem("loveSengaLikes") || "0", 10);
+  likeBadge.textContent = "❤️ " + likeCount;
+
+  function spawnHearts(x, y) {
+    const emojis = ["💖", "💕", "💘", "❤️", "💗", "💓", "💝"];
+    for (let i = 0; i < 10; i++) {
+      const h = document.createElement("span");
+      h.className = "fly-heart";
+      h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      h.style.left = (x + (Math.random() * 70 - 35)) + "px";
+      h.style.top = (y + (Math.random() * 20 - 10)) + "px";
+      h.style.fontSize = (18 + Math.random() * 22) + "px";
+      h.style.setProperty("--dx", (Math.random() * 90 - 45) + "px");
+      h.style.setProperty("--dy", (-(80 + Math.random() * 130)) + "px");
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1300);
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#restartBtn")) return;
+    likeCount++;
+    localStorage.setItem("loveSengaLikes", likeCount);
+    likeBadge.textContent = "❤️ " + likeCount;
+    spawnHearts(e.clientX, e.clientY);
   });
 </script>
 
