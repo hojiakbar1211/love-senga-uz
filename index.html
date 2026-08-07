@@ -15,6 +15,9 @@
     --card: rgba(255, 255, 255, 0.92);
     --text: #3a1c2a;
     --float-emoji: #ff6b81;
+    --blob1: #ffd1dc;
+    --blob2: #fbc2eb;
+    --blob3: #ffe0a3;
   }
 
   body.theme-friend {
@@ -25,12 +28,16 @@
     --card: rgba(255, 255, 255, 0.94);
     --text: #14415c;
     --float-emoji: #2b7a78;
+    --blob1: #a5e6ff;
+    --blob2: #b0b7ff;
+    --blob3: #b9fbc0;
   }
 
   body {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
-    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg1));
+    background-size: 300% 300%;
     background-attachment: fixed;
     color: var(--text);
     display: flex;
@@ -38,6 +45,39 @@
     justify-content: center;
     overflow-x: hidden;
     transition: background 0.8s ease;
+    animation: bgShift 14s ease infinite;
+  }
+  @keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.12));
+    z-index: 0;
+  }
+
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.55;
+    z-index: 0;
+    pointer-events: none;
+    animation: blobMove 16s ease-in-out infinite alternate;
+  }
+  .blob-1 { width: 300px; height: 300px; background: var(--blob1); top: -80px; left: -80px; }
+  .blob-2 { width: 340px; height: 340px; background: var(--blob2); bottom: -100px; right: -100px; animation-delay: -5s; }
+  .blob-3 { width: 220px; height: 220px; background: var(--blob3); top: 42%; left: 52%; animation-delay: -9s; }
+  @keyframes blobMove {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -40px) scale(1.15); }
+    100% { transform: translate(-25px, 30px) scale(0.9); }
   }
 
   .bg-animation { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
@@ -53,6 +93,16 @@
     10%  { opacity: 0.55; }
     90%  { opacity: 0.55; }
     100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+
+  .sparkle {
+    position: absolute;
+    pointer-events: none;
+    animation: twinkle 2.6s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.1; transform: scale(0.6); }
+    50% { opacity: 0.9; transform: scale(1.25); }
   }
 
   #app { position: relative; z-index: 1; width: 100%; max-width: 560px; padding: 20px; }
@@ -223,6 +273,9 @@
 <body>
 
 <div class="bg-animation" id="bgAnimation"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
 
 <div id="app">
 
@@ -381,6 +434,16 @@
       span.style.animationDuration = (9 + Math.random() * 10) + "s";
       span.style.animationDelay = (Math.random() * 8) + "s";
       bgAnimation.appendChild(span);
+    }
+    for (let i = 0; i < 12; i++) {
+      const sp = document.createElement("span");
+      sp.className = "sparkle";
+      sp.textContent = "✨";
+      sp.style.left = Math.random() * 95 + "vw";
+      sp.style.top = Math.random() * 90 + "vh";
+      sp.style.fontSize = (14 + Math.random() * 16) + "px";
+      sp.style.animationDelay = (Math.random() * 2.6) + "s";
+      bgAnimation.appendChild(sp);
     }
   }
 
