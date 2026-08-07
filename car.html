@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mashina O'yini 🏎️</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(180deg, #23272e 0%, #2d3436 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+
+  #gameWrap {
+    position: relative;
+    width: min(92vw, 420px);
+    aspect-ratio: 9 / 16;
+    max-height: 88vh;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  #hud {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 5;
+    pointer-events: none;
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  }
+  #hud .score-big {
+    font-size: 28px;
+    background: rgba(0,0,0,0.4);
+    padding: 4px 14px;
+    border-radius: 999px;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+  }
+  .overlay.hidden { display: none; }
+  .overlay h1 { font-size: 40px; }
+  .overlay h2 { font-size: 26px; }
+  .overlay p { font-size: 17px; max-width: 320px; line-height: 1.5; }
+
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 800;
+    padding: 14px 40px;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s ease;
+    font-family: inherit;
+    touch-action: manipulation;
+  }
+  .btn:hover { transform: scale(1.05); }
+  .btn:active { transform: scale(0.94); }
+
+  .best {
+    font-size: 18px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 20px;
+    border-radius: 999px;
+  }
+  .controls {
+    font-size: 15px;
+    background: rgba(0,0,0,0.35);
+    padding: 8px 18px;
+    border-radius: 999px;
+  }
+</style>
+</head>
+<body>
+
+<div id="gameWrap">
+  <canvas id="game" width="360" height="640"></canvas>
+
+  <div id="hud" class="hidden">
+    <span class="score-big" id="score">0</span>
+  </div>
+
+  <div class="overlay" id="startOverlay">
+    <div style="font-size:46px;">🏎️</div>
+    <h1>Mashina O'yini</h1>
+    <p>Yo'ldan ketayotgan mashinalarga urilmang! Ulardan tezroq va chaqqonroq bo'ling. 🚗💨</p>
+    <div class="controls">⬅️➡️ strelkalar yoki ekranni bosib haydang</div>
+    <button class="btn" id="startBtn">O'yinni boshlash 🚀</button>
+    <div class="best">🏆 Rekord: <span id="best">0</span></div>
+  </div>
+
+  <div class="overlay hidden" id="gameOverOverlay">
+    <div style="font-size:46px;">💥</div>
+    <h2>Avariya!</h2>
+    <div class="best">Hisob: <span id="finalScore">0</span> &nbsp;|&nbsp; 🏆 Rekord: <span id="finalBest">0</span></div>
+    <button class="btn" id="restartBtn">Qayta o'ynash 🔄</button>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const finalScoreEl = document.getElementById("finalScore");
+  const finalBestEl = document.getElementById("finalBest");
+  const startOverlay = document.getElementById("startOverlay");
+  const gameOverOverlay = document.getElementById("gameOverOverlay");
+  const hud = document.getElementById("hud");
+  const wrap = document.getElementById("gameWrap");
+
+  const W = canvas.width, H = canvas.height;
+  const ROAD = { left: 55, right: W - 55 };
+  const ROAD_W = ROAD.right - ROAD.left;
+  const CAR_W = 52, CAR_H = 92;
+  const PLAYER_X = W / 2 - CAR_W / 2;
+  const PLAYER_Y = H - CAR_H - 30;
+
+  let player, cars, score, best, gameState, frames, speed, flashTimer, spawnTimer;
+
+  best = parseInt(localStorage.getItem("carGameBest") || "0", 10);
+  bestEl.textContent = best;
+
+  function reset() {
+    player = { x: PLAYER_X, y: PLAYER_Y, target: PLAYER_X };
+    cars = [];
+    score = 0;
+    frames = 0;
+    speed = 4;
+    flashTimer = 0;
+    spawnTimer = 0;
+    scoreEl.textContent = "0";
+    finalBestEl.textContent = best;
+  }
+
+  function spawnCar() {
+    const maxCars = Math.min(2 + Math.floor(score / 8), 5);
+    if (cars.length >= maxCars) return;
+    const col = 2 + Math.floor(Math.random() * 3);
+    const x = ROAD.left + 14 + col * (ROAD_W - 28 - CAR_W) / 4;
+    const overlap = cars.some(c => Math.abs(c.x - x) < CAR_W + 12 && c.y < CAR_H + 30);
+    if (overlap) return;
+    const colors = ["#e74c3c", "#f1c40f", "#9b59b6", "#3498db", "#e67e22", "#2ecc71", "#ff6b81"];
+    cars.push({
+      x, y: -CAR_H,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      wobble: Math.random() * 0.3
+    });
+  }
+
+  function update() {
+    frames++;
+    speed = Math.min(4 + score * 0.12, 11);
+    spawnTimer++;
+    if (spawnTimer > Math.max(28, 70 - score * 1.4)) {
+      spawnTimer = 0;
+      spawnCar();
+    }
+
+    player.x += (player.target - player.x) * 0.25;
+
+    cars.forEach(c => c.y += speed);
+    cars = cars.filter(c => c.y < H + CAR_H);
+
+    cars.forEach(c => {
+      if (c.y + CAR_H > player.y && c.y < player.y + CAR_H) {
+        if (c.x < player.x + CAR_W && c.x + CAR_W > player.x) {
+          crash();
+          return;
+        }
+      }
+      if (c.y > H + CAR_H) score++;
+    });
+
+    if (flashTimer > 0) flashTimer--;
+  }
+
+  function crash() {
+    if (gameState !== "playing") return;
+    gameState = "over";
+    flashTimer = 25;
+    if (score > best) {
+      best = score;
+      localStorage.setItem("carGameBest", best);
+    }
+    setTimeout(() => {
+      finalScoreEl.textContent = score;
+      finalBestEl.textContent = best;
+      gameOverOverlay.classList.remove("hidden");
+    }, 500);
+  }
+
+  function drawCar(x, y, w, h, color, isPlayer) {
+    ctx.save();
+    ctx.translate(x + w / 2, y + h / 2);
+    if (isPlayer && flashTimer > 0 && flashTimer % 4 < 2) {
+      ctx.globalAlpha = 0.35;
+    }
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(-w / 2, -h / 2, w, h, 12);
+    ctx.fill();
+    ctx.fillStyle = "rgba(0,0,0,0.28)";
+    ctx.beginPath();
+    ctx.roundRect(-w / 2 + 5, -h / 2 + 5, w - 10, h - 10, 9);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.beginPath();
+    ctx.roundRect(-w / 2 + 8, -h / 2 + 14, w - 16, h - 46, 6);
+    ctx.fill();
+    ctx.fillStyle = "rgba(40,50,80,0.5)";
+    ctx.beginPath();
+    ctx.roundRect(-w / 2 + 10, -h / 2 + 17, w - 20, h - 52, 5);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.beginPath();
+    ctx.roundRect(-w / 2 + 5, -h / 2 + 6, 10, 16, 4);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect(w / 2 - 15, -h / 2 + 6, 10, 16, 4);
+    ctx.fill();
+    ctx.fillStyle = "#e62e2e";
+    ctx.beginPath();
+    ctx.roundRect(-w / 2 + 5, h / 2 - 10, 12, 10, 3);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect(w / 2 - 17, h / 2 - 10, 12, 10, 3);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.fillStyle = "#3b6b35";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#74a24f";
+    ctx.fillRect(0, H - 60, W, 60);
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([12, 14]);
+    ctx.beginPath();
+    ctx.moveTo(ROAD.left, 0);
+    ctx.lineTo(ROAD.left, H);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ROAD.right, 0);
+    ctx.lineTo(ROAD.right, H);
+    ctx.stroke();
+
+    ctx.fillStyle = "#444";
+    ctx.fillRect(ROAD.left, 0, ROAD_W, H);
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 4;
+    ctx.setLineDash([26, 30]);
+    ctx.lineDashOffset = -(frames * 2) % 56;
+    ctx.beginPath();
+    ctx.moveTo(W / 2, 0);
+    ctx.lineTo(W / 2, H);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    for (const c of cars) {
+      drawCar(c.x, c.y, CAR_W, CAR_H, c.color, false);
+    }
+    drawCar(player.x, player.y, CAR_W, CAR_H, "#ff4757", true);
+
+    if (flashTimer > 0) {
+      ctx.fillStyle = "rgba(255,255,255," + (flashTimer / 25) * 0.7 + ")";
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function loop() {
+    if (gameState === "playing") update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function startGame() {
+    reset();
+    gameState = "playing";
+    startOverlay.classList.add("hidden");
+    gameOverOverlay.classList.add("hidden");
+    hud.classList.remove("hidden");
+  }
+
+  function move(dx) {
+    if (gameState !== "playing") return;
+    let nx = player.target + dx;
+    nx = Math.max(ROAD.left + 8, Math.min(ROAD.right - CAR_W - 8, nx));
+    player.target = nx;
+  }
+
+  let touchX = null;
+  wrap.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (gameState === "ready") { startGame(); return; }
+    if (gameState !== "playing") return;
+    touchX = e.clientX;
+  });
+  wrap.addEventListener("pointermove", (e) => {
+    if (touchX !== null && gameState === "playing") {
+      const dx = e.clientX - touchX;
+      touchX = e.clientX;
+      move(dx);
+    }
+  });
+  window.addEventListener("pointerup", () => { touchX = null; });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "ArrowLeft" || e.code === "KeyA") {
+      e.preventDefault();
+      if (gameState === "ready") startGame();
+      else move(-34);
+    }
+    if (e.code === "ArrowRight" || e.code === "KeyD") {
+      e.preventDefault();
+      if (gameState === "ready") startGame();
+      else move(34);
+    }
+  });
+
+  document.getElementById("startBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    startGame();
+  });
+
+  document.getElementById("restartBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    startGame();
+  });
+
+  gameState = "ready";
+  reset();
+  loop();
+</script>
+</body>
+</html>

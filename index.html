@@ -131,6 +131,25 @@
 
   .gender-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
+  .projects { margin-top: 26px; border-top: 2px dashed rgba(255,255,255,0.7); padding-top: 18px; }
+  .projects h2 { font-size: 18px; margin-bottom: 12px; }
+  .project-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .project-link:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25); }
+
   .btn {
     border: none;
     cursor: pointer;
@@ -304,6 +323,13 @@
           <span class="g-symbol female">♀</span>
           Qiz bolaman
         </button>
+      </div>
+      <div class="projects">
+        <h2>Bizning loyhalar 🚀</h2>
+        <div class="project-row">
+          <a class="project-link" href="flappy.html">🐤 Flappy Qush</a>
+          <a class="project-link" href="car.html">🏎️ Mashina O'yini</a>
+        </div>
       </div>
     </div>
   </section>
