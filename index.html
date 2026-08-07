@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>love-senga.uz 💛</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg1: #ff9a9e;
+    --bg2: #fecfef;
+    --accent: #ff4d6d;
+    --accent2: #ff758f;
+    --card: rgba(255, 255, 255, 0.92);
+    --text: #3a1c2a;
+    --float-emoji: #ff6b81;
+  }
+
+  body.theme-friend {
+    --bg1: #89f7fe;
+    --bg2: #66a6ff;
+    --accent: #2b7a78;
+    --accent2: #3aada8;
+    --card: rgba(255, 255, 255, 0.94);
+    --text: #14415c;
+    --float-emoji: #2b7a78;
+  }
+
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    background-attachment: fixed;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    transition: background 0.8s ease;
+  }
+
+  .bg-animation { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-emoji {
+    position: absolute;
+    bottom: -60px;
+    opacity: 0.55;
+    animation: floatUp linear infinite;
+    user-select: none;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.55; }
+    90%  { opacity: 0.55; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+
+  #app { position: relative; z-index: 1; width: 100%; max-width: 560px; padding: 20px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 36px 28px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+    text-align: center;
+    backdrop-filter: blur(6px);
+  }
+
+  .logo { font-size: 56px; animation: pulse 1.8s ease infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+  h1 { font-size: 34px; letter-spacing: 1px; margin: 12px 0 6px; }
+  .tagline { font-size: 16px; opacity: 0.85; margin-bottom: 22px; }
+
+  h2 { font-size: 22px; margin-bottom: 8px; }
+  .subtitle { font-size: 15px; opacity: 0.8; margin-bottom: 20px; }
+
+  .gender-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 16px 26px;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    font-family: inherit;
+  }
+  .btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25); }
+  .btn:active { transform: scale(0.96); }
+
+  .gender-btn { font-size: 22px; padding: 22px 18px; width: 160px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .gender-btn .g-emoji { font-size: 46px; }
+
+  .progress-wrap { background: rgba(255,255,255,0.5); border-radius: 999px; height: 12px; margin-bottom: 20px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.5s ease; }
+  .progress-text { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+
+  .option-list { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+  .option-btn {
+    border: 3px solid rgba(255,255,255,0.0);
+    background: rgba(255,255,255,0.65);
+    color: var(--text);
+    text-align: left;
+    font-size: 17px;
+    font-weight: 600;
+    padding: 15px 18px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.15s ease;
+  }
+  .option-btn:hover { border-color: var(--accent); transform: translateX(6px); background: #fff; }
+
+  .warning {
+    margin-top: 16px;
+    background: #ffe3e3;
+    color: #c62828;
+    border: 2px solid #ff8a8a;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 15px;
+    display: none;
+  }
+  .warning.show { display: block; animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  .result-emoji { font-size: 74px; animation: pulse 1.5s ease infinite; }
+  .result-title { font-size: 28px; margin: 10px 0 12px; }
+  .result-text { font-size: 17px; line-height: 1.6; margin-bottom: 24px; }
+
+  .confetti-piece {
+    position: fixed;
+    top: -20px;
+    width: 12px;
+    height: 18px;
+    border-radius: 3px;
+    z-index: 10;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; }
+  }
+
+  footer { margin-top: 18px; font-size: 13px; opacity: 0.7; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="bg-animation" id="bgAnimation"></div>
+
+<div id="app">
+
+  <!-- INTRO -->
+  <section id="screen-intro" class="screen active">
+    <div class="card">
+      <div class="logo">💛</div>
+      <h1>love-senga.uz</h1>
+      <p class="tagline">Odamlarni xursand qilish uchun yaratilgan sayt! 🥰</p>
+      <h2>Salom, mehmon! 👋</h2>
+      <p class="subtitle">Davom etish uchun avval o'zingni tanlab ber 🥺👇</p>
+      <div class="gender-row">
+        <button class="btn gender-btn" data-gender="boy">
+          <span class="g-emoji">👦</span>
+          O'g'il bolaman
+        </button>
+        <button class="btn gender-btn" data-gender="girl">
+          <span class="g-emoji">👧</span>
+          Qiz bolaman
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="card">
+      <h1 style="font-size:24px; margin-bottom:6px;">love-senga.uz 💛</h1>
+      <div class="progress-text" id="progressText">Savol 1</div>
+      <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+      <h2 id="questionText"></h2>
+      <div class="option-list" id="optionList"></div>
+      <p class="warning" id="warningBox"></p>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="screen-result" class="screen">
+    <div class="card">
+      <div class="result-emoji">🎉</div>
+      <div class="result-title">Tabriklaymiz! 🎊</div>
+      <div class="result-text">
+        <strong>Testdan 100% o'tdingiz! 🏆</strong><br>
+        Hammasi rejalashtirildi! 😍💛<br><br>
+        <span id="finalMessage"></span>
+      </div>
+      <button class="btn" id="restartBtn">Qaytadan boshlash 🔄</button>
+    </div>
+    <footer>love-senga.uz • senga bag'ishlangan 💝</footer>
+  </section>
+
+</div>
+
+<script>
+  const quizzes = {
+    boy: [
+      {
+        q: "Bugun aylanamizmi jigar? 🥤",
+        options: [
+          { text: "A) Ha albatta! 🤩", correct: true },
+          { text: "B) Yo'q, boshqa safar 😅", correct: false },
+          { text: "C) Sen bilan emas 😏", correct: false }
+        ],
+        must: "A"
+      },
+      {
+        q: "Senga nima olib beray? 🎁",
+        options: [
+          { text: "A) Kerak emas 🙅", correct: false },
+          { text: "B) Bir dona FLASH ketadyu ✨🍬", correct: true },
+          { text: "C) Yo'q, o'zim olaman 😎", correct: false }
+        ],
+        must: "B"
+      },
+      {
+        q: "Qachon chiqamiz unda? 🕒",
+        options: [
+          { text: "A) Bugun vaqtim ozroq 🙄", correct: false },
+          { text: "B) Umuman vaqtim yo'q 😫", correct: false },
+          { text: "C) Kechga chiqamiz 🌆", correct: true }
+        ],
+        must: "C"
+      }
+    ],
+    girl: [
+      {
+        q: "Men sizga yoqamanmi? 😊",
+        options: [
+          { text: "A) Yo'q, hech qachon 🙅‍♀️", correct: false },
+          { text: "B) Hmm, o'ylab ko'rish kerak 🤔", correct: false },
+          { text: "C) wanna be yours 💘", correct: true }
+        ],
+        must: "C"
+      },
+      {
+        q: "Bugun telefon qilasizmi? 📞",
+        options: [
+          { text: "A) Yo'q, oyim so'kadi 😨", correct: false },
+          { text: "B) Ha, hozir 📲", correct: true },
+          { text: "C) Yo'q, vaqtim yo'q edi 😔", correct: false }
+        ],
+        must: "B"
+      },
+      {
+        q: "Don don ziki o'yinini o'ynaymizmi? 🎮",
+        options: [
+          { text: "A) Ha, albatta 🥳", correct: true },
+          { text: "B) Yo'q, vaqtim yo'q 😮‍💨", correct: false },
+          { text: "C) Yo'q, zerikarli ekan 🥱", correct: false }
+        ],
+        must: "A"
+      }
+    ]
+  };
+
+  const finalMessages = {
+    boy: "Do'stlarsiz hayot zerikarli, jigar! 🤝 Eng zo'r rejalar sizni kutmoqda! 🎈",
+    girl: "Sizga barcha yaxshi so'zlar yozilgan! 💌 Eng chiroyli kechalar sizni kutmoqda! ✨"
+  };
+
+  const intro = document.getElementById("screen-intro");
+  const quizScreen = document.getElementById("screen-quiz");
+  const resultScreen = document.getElementById("screen-result");
+  const questionText = document.getElementById("questionText");
+  const optionList = document.getElementById("optionList");
+  const warningBox = document.getElementById("warningBox");
+  const progressText = document.getElementById("progressText");
+  const progressFill = document.getElementById("progressFill");
+  const bgAnimation = document.getElementById("bgAnimation");
+
+  let gender = null;
+  let current = 0;
+
+  function setTheme(g) {
+    document.body.className = g === "girl" ? "theme-love" : "theme-friend";
+    document.body.classList.remove("theme-love");
+    document.body.classList.add(g === "girl" ? "theme-love" : "theme-friend");
+    const emojis = g === "girl"
+      ? ["💖","💕","💘","💝","💗","🌹","😍","💞","🥰","🌸"]
+      : ["🤝","🎈","⚽","🍕","🥤","😂","🤙","🎮","🍦","😄"];
+    bgAnimation.innerHTML = "";
+    for (let i = 0; i < 16; i++) {
+      const span = document.createElement("span");
+      span.className = "bg-emoji";
+      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      span.style.left = Math.random() * 95 + "vw";
+      span.style.fontSize = (22 + Math.random() * 30) + "px";
+      span.style.animationDuration = (9 + Math.random() * 10) + "s";
+      span.style.animationDelay = (Math.random() * 8) + "s";
+      bgAnimation.appendChild(span);
+    }
+  }
+
+  function showScreen(s) {
+    intro.classList.remove("active");
+    quizScreen.classList.remove("active");
+    resultScreen.classList.remove("active");
+    s.classList.add("active");
+  }
+
+  function renderQuestion() {
+    const quiz = quizzes[gender];
+    const item = quiz[current];
+    questionText.textContent = item.q;
+    progressText.textContent = "Savol " + (current + 1) + " / " + quiz.length + " 😊";
+    progressFill.style.width = ((current) / quiz.length) * 100 + "%";
+    warningBox.classList.remove("show");
+    optionList.innerHTML = "";
+    item.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.textContent = opt.text;
+      btn.addEventListener("click", () => handleAnswer(opt, item));
+      optionList.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(opt, item) {
+    if (opt.correct) {
+      current++;
+      warningBox.classList.remove("show");
+      if (current < quizzes[gender].length) {
+        renderQuestion();
+      } else {
+        finish();
+      }
+    } else {
+      warningBox.textContent = "Iltimos, " + item.must + " javobni tanlang! Aks holda keyingi savolga o'tmaydi 🥺🙏";
+      warningBox.classList.remove("show");
+      void warningBox.offsetWidth;
+      warningBox.classList.add("show");
+    }
+  }
+
+  function finish() {
+    progressFill.style.width = "100%";
+    document.getElementById("finalMessage").textContent = finalMessages[gender];
+    showScreen(resultScreen);
+    confetti();
+  }
+
+  function confetti() {
+    const colors = ["#ff4d6d", "#ffb347", "#ffd166", "#4ecdc4", "#5dade2", "#c084fc", "#ff9a9e"];
+    for (let i = 0; i < 120; i++) {
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      p.style.left = Math.random() * 100 + "vw";
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (2.5 + Math.random() * 3) + "s";
+      p.style.animationDelay = (Math.random() * 1.2) + "s";
+      p.style.width = (8 + Math.random() * 8) + "px";
+      p.style.height = (12 + Math.random() * 10) + "px";
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 7000);
+    }
+  }
+
+  document.querySelectorAll(".gender-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      gender = btn.dataset.gender;
+      setTheme(gender);
+      current = 0;
+      renderQuestion();
+      showScreen(quizScreen);
+    });
+  });
+
+  document.getElementById("restartBtn").addEventListener("click", () => {
+    document.querySelectorAll(".confetti-piece").forEach(p => p.remove());
+    bgAnimation.innerHTML = "";
+    gender = null;
+    showScreen(intro);
+  });
+</script>
+
+</body>
+</html>
