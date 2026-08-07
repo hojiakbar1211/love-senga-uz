@@ -98,7 +98,21 @@
   .btn:active { transform: scale(0.96); }
 
   .gender-btn { font-size: 22px; padding: 22px 18px; width: 160px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .gender-btn .g-emoji { font-size: 46px; }
+  .g-symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  .g-symbol.male { color: #1f6feb; }
+  .g-symbol.female { color: #ff4d6d; }
 
   .progress-wrap { background: rgba(255,255,255,0.5); border-radius: 999px; height: 12px; margin-bottom: 20px; overflow: hidden; }
   .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.5s ease; }
@@ -222,11 +236,11 @@
       <p class="subtitle">Davom etish uchun avval o'zingni tanlab ber 🥺👇</p>
       <div class="gender-row">
         <button class="btn gender-btn" data-gender="boy">
-          <span class="g-emoji">👦</span>
+          <span class="g-symbol male">♂</span>
           O'g'il bolaman
         </button>
         <button class="btn gender-btn" data-gender="girl">
-          <span class="g-emoji">👧</span>
+          <span class="g-symbol female">♀</span>
           Qiz bolaman
         </button>
       </div>
