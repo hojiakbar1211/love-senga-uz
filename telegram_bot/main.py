@@ -1,3 +1,4 @@
+import os
 import asyncio
 import logging
 from aiohttp import web
@@ -10,6 +11,8 @@ from handlers import user, proof, admin
 
 logging.basicConfig(level=logging.INFO)
 
+PORT = int(os.getenv("PORT", "8080"))
+
 
 async def health_handler(request):
     return web.Response(text="OK")
@@ -18,11 +21,12 @@ async def health_handler(request):
 async def run_web():
     app = web.Application()
     app.router.add_get("/", health_handler)
+    app.router.add_get("/health", health_handler)
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", 8080)
+    site = web.TCPSite(runner, "0.0.0.0", PORT)
     await site.start()
-    logging.info("Health server started on :8080")
+    logging.info(f"Health server started on :{PORT}")
     await asyncio.Event().wait()
 
 
