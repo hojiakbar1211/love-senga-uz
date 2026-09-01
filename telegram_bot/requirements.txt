@@ -3,5 +3,3 @@ aiohttp==3.10.10
 python-dotenv==1.0.1
 asyncpg==0.30.0
 aiosqlite==0.20.0
-asyncpg==0.30.0
-aiosqlite==0.20.0
