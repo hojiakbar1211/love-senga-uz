@@ -26,11 +26,15 @@ async def receive_proof(message: Message, state: FSMContext):
     uname = f"@{user.username}" if user.username else f"{user.first_name or user.id} (username yo'q)"
     recipient = data.get("recipient", "—")
 
+    item_type = data.get("item_type", "unknown")
     item_label = {
         "stars": f"⭐ {data.get('amount', '')} Stars",
         "premium": f"👑 {data.get('months', '')} oy Premium",
         "balance": f"💰 Balans to'ldirish",
-    }.get(data.get("item_type"), data.get("item_type", ""))
+    }.get(item_type, item_type)
+
+    # Kartaga tushadigan summa: buyurtma narxi (stars/premium) yoki kiritilgan summa (balance)
+    paid_sum = data.get("price", data.get("amount", 0))
 
     caption = (
         f"🆕 <b>Yangi buyurtma!</b>  (#{purchase_id})\n"
@@ -38,9 +42,10 @@ async def receive_proof(message: Message, state: FSMContext):
         f"👤 Foydalanuvchi: <b>{uname}</b>\n"
         f"🆔 ID: <code>{user.id}</code>\n"
         f"📦 Turi: <b>{item_label}</b>\n"
-        f"💵 Narx: <b>{data.get('price', 0):,} so'm</b>\n"
-        f"👤 Kimga: <b>{recipient}</b>\n\n"
-        f"Chek quyida👇"
+        f"{'👤 Kimga: <b>' + recipient + '</b>\n' if recipient and recipient != '—' else ''}"
+        f"💳 <b>Kartaga tushadigan summa: {paid_sum:,} so'm</b>\n\n"
+        f"⚠️ Foydalanuvchi tarafidan quyidagi chek yuborildi — "
+        f"buning kartaga tushgan summasini tekshiring👇"
     )
 
     for admin_id in ADMIN_IDS:
