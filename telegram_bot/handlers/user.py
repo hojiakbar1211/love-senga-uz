@@ -74,7 +74,7 @@ async def menu_stars(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         "⭐ <b>Telegram Stars</b>\n\n"
         "Miqdorni tanlang yoki o'zingiz kiritib qo'ying:\n"
-        "Narx: <b>190 so'm = 1 Stars</b>\n\n"
+        "Narx: <b>195 so'm = 1 Stars</b>\n\n"
         "Minimal: <b>50 Stars</b>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
@@ -95,7 +95,7 @@ async def menu_stars(call: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("stars:quick:"))
 async def stars_quick(call: CallbackQuery, state: FSMContext):
     amount = int(call.data.split(":")[2])
-    price = amount * 190
+    price = amount * 195
     await state.update_data(amount=amount, price=price)
     await state.set_state(StarsOrder.recipient)
     await call.message.edit_text(
@@ -129,7 +129,7 @@ async def stars_amount(message: Message, state: FSMContext):
         await message.answer("❌ Minimal buyurtma <b>50 Stars</b>. Yana bir marta yozing:")
         return
     amount = int(text)
-    price = amount * 190
+    price = amount * 195
     await state.update_data(amount=amount, price=price)
     await state.set_state(StarsOrder.recipient)
     await message.answer(
