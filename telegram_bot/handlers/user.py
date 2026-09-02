@@ -265,6 +265,13 @@ async def stars_confirm(call: CallbackQuery, state: FSMContext):
         f"👤 Kimga: <b>{data.get('recipient', '—')}</b>\n"
         f"💰 Balans: <b>{balance:,} so'm</b> · ❌ <b>{diff:,} so'm kam</b>\n\n"
         f"To'lovni amalga oshirib, chek/bank apps skrinshotini yuboring👇",
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="💰 Balansni to'ldirish", callback_data="menu:card")],
+                [InlineKeyboardButton(text="✅ To'ladim, chek yuboraman", callback_data="pay:start")],
+                [InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")],
+            ]
+        ),
     )
     await call.message.answer("📎 <b>Chek/skrinshot rasmini yuboring.</b>")
     await call.answer()
@@ -448,6 +455,7 @@ async def premium_confirm(call: CallbackQuery, state: FSMContext):
         f"To'lovni qilib, chek yuboring👇",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
+                [InlineKeyboardButton(text="💰 Balansni to'ldirish", callback_data="menu:card")],
                 [InlineKeyboardButton(text="✅ To'ladim, chek yuboraman", callback_data="pay:start")],
                 [InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")],
             ]
