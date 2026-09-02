@@ -107,7 +107,10 @@ async def approve_purchase(call: CallbackQuery, state: FSMContext):
         await call.answer("❌ Topilmadi", show_alert=True)
         return
     await update_purchase(purchase_id, "approved")
-    await update_balance(row["user_id"], row["price"])
+    # Faqat "balance" (balans to'ldirish) tipida balansga qo'shiladi.
+    # Stars/Premium chek orqali tasdiqlanganda balans o'zgarmaydi.
+    if row["item_type"] == "balance":
+        await update_balance(row["user_id"], row["price"])
 
     await call.message.edit_caption(
         caption=call.message.caption.replace("🆕", "✅") + "\n\n<b>Status: TASDIQLANDI ✅</b>"
@@ -120,14 +123,21 @@ async def approve_purchase(call: CallbackQuery, state: FSMContext):
         )
     )
     try:
-        await bot.send_message(
-            row["user_id"],
-            "🎉 <b>Buyurtmangiz tasdiqlandi!</b>\n\n"
-            f"📦 <b>{row['item_type']}</b> – {row['amount']}\n"
-            f"💵 {row['price']:,} so'm <b>balansingizga qo'shildi!</b>\n\n"
-            f"💰 Jami balans: {await get_balance(row['user_id']):,} so'm\n\n"
-            "Tez orada sizga topshiriladi. Rahmat!",
-        )
+        if row["item_type"] == "balance":
+            msg = (
+                "🎉 <b>To'lov tasdiqlandi!</b>\n\n"
+                f"📦 <b>Balans to'ldirish</b> – {row['amount']:,} so'm\n"
+                f"💰 Jami balans: {await get_balance(row['user_id']):,} so'm\n\n"
+                "Rahmat! 🙌"
+            )
+        else:
+            msg = (
+                "🎉 <b>Buyurtmangiz tasdiqlandi!</b>\n\n"
+                f"📦 <b>{row['item_type']}</b> – {row['amount']}\n"
+                f"💵 {row['price']:,} so'm\n\n"
+                "Tez orada sizga topshiriladi. Rahmat! 🙌"
+            )
+        await bot.send_message(row["user_id"], msg)
     except Exception:
         pass
     await call.answer()

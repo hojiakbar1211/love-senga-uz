@@ -247,6 +247,7 @@ async def stars_confirm(call: CallbackQuery, state: FSMContext):
             f"💰 Qolgan balans: {await get_balance(user.id):,} so'm\n\n"
             "Tez orada sizga topshiriladi. Rahmat! 🙌",
         )
+        await state.clear()
         await call.answer()
         return
 
@@ -429,6 +430,7 @@ async def premium_confirm(call: CallbackQuery, state: FSMContext):
             f"💰 Qolgan balans: {await get_balance(user.id):,} so'm\n\n"
             "Tez orada sizga topshiriladi. Rahmat! 🙌",
         )
+        await state.clear()
         await call.answer()
         return
 
