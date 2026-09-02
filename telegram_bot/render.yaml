@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: stars-bot
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: ORDERS_CHANNEL
+        sync: false
+      - key: REQUIRED_CHANNELS
+        sync: false
+      - key: CARD_NUMBER
+        sync: false
+      - key: CARD_NAME
+        sync: false
+      - key: CARD_BANK
+        sync: false
+      - key: PAYMENT_NOTE
+        sync: false
