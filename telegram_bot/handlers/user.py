@@ -215,7 +215,7 @@ async def stars_confirm(call: CallbackQuery, state: FSMContext):
             price=data["price"],
             txn_id=f"STAR{user.id}{data['amount']}",
         )
-        await update_purchase(purchase_id, "approved")
+        await update_purchase(purchase_id, "pending")
         uname = f"@{user.username}" if user.username else f"{user.first_name or user.id} (username yo'q)"
         caption = (
             f"🆕 <b>Balansdan buyurtma!</b>  (#{purchase_id})\n"
@@ -225,10 +225,17 @@ async def stars_confirm(call: CallbackQuery, state: FSMContext):
             f"📦 Turi: <b>⭐ {data['amount']} Stars</b>\n"
             f"💵 Narx: <b>{data['price']:,} so'm</b>\n"
             f"👤 Kimga: <b>{data.get('recipient', '—')}</b>\n\n"
-            f"To'lov balansdan ayirildi ✅"
+            f"To'lov balansdan ayirildi ✅\n"
+            f"Buyurtmani tasdiqlash uchun pastdagi tugmalardan foydalaning:"
         )
         kb = InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="📦 Bajarildi", callback_data=f"deliver:{purchase_id}")]]
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="✅ Tasdiqlash", callback_data=f"approve:{purchase_id}"),
+                    InlineKeyboardButton(text="❌ Rad etish", callback_data=f"reject:{purchase_id}"),
+                ],
+                [InlineKeyboardButton(text="📦 Bajarildi", callback_data=f"deliver:{purchase_id}")],
+            ]
         )
         for admin_id in ADMIN_IDS:
             try:
@@ -245,7 +252,8 @@ async def stars_confirm(call: CallbackQuery, state: FSMContext):
             f"⭐ {data['amount']} Stars\n"
             f"💵 {data['price']:,} so'm\n\n"
             f"💰 Qolgan balans: {await get_balance(user.id):,} so'm\n\n"
-            "Tez orada sizga topshiriladi. Rahmat! 🙌",
+            "Buyurtmangiz admin tomonidan ko'rib chiqilmoqda.\n"
+            "Tasdiqlangach sizga yetkaziladi. Rahmat! 🙌",
         )
         await state.clear()
         await call.answer()
@@ -405,7 +413,7 @@ async def premium_confirm(call: CallbackQuery, state: FSMContext):
             price=data["price"],
             txn_id=f"PRM{user.id}{data.get('months', '')}",
         )
-        await update_purchase(purchase_id, "approved")
+        await update_purchase(purchase_id, "pending")
         uname = f"@{user.username}" if user.username else f"{user.first_name or user.id} (username yo'q)"
         caption = (
             f"🆕 <b>Balansdan buyurtma!</b>  (#{purchase_id})\n"
@@ -415,10 +423,17 @@ async def premium_confirm(call: CallbackQuery, state: FSMContext):
             f"📦 Turi: <b>👑 {data.get('months', '')} oy Premium</b>\n"
             f"💵 Narx: <b>{data['price']:,} so'm</b>\n"
             f"👤 Kimga: <b>{data.get('recipient', '—')}</b>\n\n"
-            f"To'lov balansdan ayirildi ✅"
+            f"To'lov balansdan ayirildi ✅\n"
+            f"Buyurtmani tasdiqlash uchun pastdagi tugmalardan foydalaning:"
         )
         kb = InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="📦 Bajarildi", callback_data=f"deliver:{purchase_id}")]]
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="✅ Tasdiqlash", callback_data=f"approve:{purchase_id}"),
+                    InlineKeyboardButton(text="❌ Rad etish", callback_data=f"reject:{purchase_id}"),
+                ],
+                [InlineKeyboardButton(text="📦 Bajarildi", callback_data=f"deliver:{purchase_id}")],
+            ]
         )
         for admin_id in ADMIN_IDS:
             try:
@@ -435,7 +450,8 @@ async def premium_confirm(call: CallbackQuery, state: FSMContext):
             f"👑 {data.get('months', '')} oy Premium\n"
             f"💵 {data['price']:,} so'm\n\n"
             f"💰 Qolgan balans: {await get_balance(user.id):,} so'm\n\n"
-            "Tez orada sizga topshiriladi. Rahmat! 🙌",
+            "Buyurtmangiz admin tomonidan ko'rib chiqilmoqda.\n"
+            "Tasdiqlangach sizga yetkaziladi. Rahmat! 🙌",
         )
         await state.clear()
         await call.answer()
